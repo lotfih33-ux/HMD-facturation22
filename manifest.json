@@ -1,0 +1,9 @@
+{
+  "name": "HMD Facturation",
+  "short_name": "HMD",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#17365D",
+  "orientation": "portrait"
+}
