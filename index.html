@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17365d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>HMD Facturation</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f1f4f8;color:#202b3c;font-family:Arial,sans-serif}
+header{background:#17365d;color:white;padding:18px;text-align:center}
+.logo{font-size:30px;font-weight:900;letter-spacing:3px}
+header p{margin:5px;font-size:12px}
+nav{display:flex;gap:6px;padding:10px;background:white;overflow:auto}
+nav button{border:0;background:#e9eef5;padding:11px 14px;border-radius:8px;white-space:nowrap;font-weight:bold}
+nav button.active{background:#17365d;color:white}
+main{padding:12px;max-width:900px;margin:auto}
+section{display:none}
+section.active{display:block}
+.card{background:white;padding:15px;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 8px #0000000b}
+h2{font-size:18px;color:#17365d;margin-top:0}
+h3{font-size:15px}
+label{display:block;font-size:12px;font-weight:bold;margin:10px 0 5px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5df;border-radius:7px;font-size:14px;background:white}
+button{cursor:pointer}
+.btn{border:0;padding:12px;border-radius:8px;background:#17365d;color:white;font-weight:bold;margin:4px 2px}
+.btn.green{background:#16834a}
+.btn.red{background:#b73535}
+.btn.gray{background:#68778a}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px 4px;border-bottom:1px solid #e2e7ed;text-align:left}
+th{background:#eef2f7}
+.table-wrap{overflow-x:auto}
+.product-row input,.product-row select{min-width:75px;padding:7px}
+.total-line{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee}
+.total-line strong{color:#17365d}
+.big-total{font-size:20px;font-weight:bold;color:#17365d}
+.small{font-size:11px;color:#667085}
+.actions{display:flex;flex-wrap:wrap;gap:5px}
+#invoicePrint{background:white}
+.invoice-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.invoice-logo{font-size:28px;font-weight:900;color:#17365d}
+hr{border:0;border-top:1px solid #ddd;margin:12px 0}
+@media(max-width:500px){.row{grid-template-columns:1fr}.invoice-head{display:block}}
+@media print{
+ body{background:white}
+ header,nav,.no-print,.screen-only{display:none!important}
+ main{padding:0;max-width:none}
+ section{display:none!important}
+ #invoiceSection{display:block!important}
+ #invoicePrint{box-shadow:none;padding:0}
+ .card{box-shadow:none;border:0;padding:0}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="logo">HMD</div>
+ <p>FACTURATION PROFESSIONNELLE</p>
+ <p>Commerce en gros de légumes secs et produits minoterie</p>
+</header>
+
+<nav class="no-print">
+ <button class="active" onclick="showTab('invoiceSection',this)">Facture</button>
+ <button onclick="showTab('clientsSection',this)">Clients</button>
+ <button onclick="showTab('productsSection',this)">Produits</button>
+ <button onclick="showTab('historySection',this)">Historique</button>
+ <button onclick="showTab('backupSection',this)">Sauvegarde</button>
+</nav>
+
+<main>
+
+<!-- FACTURE -->
+<section id="invoiceSection" class="active">
+
+<div class="card no-print">
+<h2>Nouvelle facture</h2>
+<div class="row">
+ <div>
+  <label>N° Facture</label>
+  <input id="invoiceNumber" readonly>
+ </div>
+ <div>
+  <label>Date</label>
+  <input type="date" id="invoiceDate">
+ </div>
+</div>
+</div>
+
+<div class="card" id="invoicePrint">
+
+<div class="invoice-head">
+ <div>
+  <div class="invoice-logo">HMD</div>
+  <strong>HAMIDI LOTFI</strong>
+  <p class="small">Commerce en gros de légumes secs et produits minoterie</p>
+ </div>
+ <div class="small">
+  Oulad si Ahmed, Bourached - Aïn Defla<br>
+  RC : 44/00-3848565A14<br>
+  NIF : 198344010072628<br>
+  NIS : 198344010072628<br>
+  ART : 44070339613
+ </div>
+</div>
+
+<hr>
+
+<h2 style="text-align:center">FACTURE</h2>
+
+<div class="row">
+ <div>
+  <label>Client</label>
+  <input id="clientName" list="clientOptions" placeholder="Nom du client">
+  <datalist id="clientOptions"></datalist>
+ </div>
+ <div>
+  <label>Adresse du client</label>
+  <input id="clientAddress" placeholder="Adresse">
+ </div>
+ <div>
+  <label>Activité du client</label>
+  <input id="clientActivity" placeholder="Activité">
+ </div>
+ <div>
+  <label>RC</label>
+  <input id="clientRC" placeholder="Registre de commerce">
+ </div>
+ <div>
+  <label>NIF</label>
+  <input id="clientNIF" placeholder="NIF">
+ </div>
+ <div>
+  <label>NIS</label>
+  <input id="clientNIS" placeholder="NIS">
+ </div>
+ <div>
+  <label>ART</label>
+  <input id="clientART" placeholder="Article">
+ </div>
+</div>
+
+<hr>
+
+<h3>Désignation des produits</h3>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Désignation</th>
+<th>Qté</th>
+<th>Prix U.</th>
+<th>TVA</th>
+<th>Total HT</th>
+<th class="no-print">X</th>
+</tr>
+</thead>
+<tbody id="productLines"></tbody>
+</table>
+</div>
+
+<div class="no-print">
+<button class="btn" onclick="addLine()">+ Ajouter produit</button>
+</div>
+
+<hr>
+
+<div style="max-width:350px;margin-left:auto">
+ <div class="total-line"><span>Total HT</span><strong id="totalHT">0,00 DA</strong></div>
+ <div class="total-line"><span>TVA 0%</span><strong id="vat0">0,00 DA</strong></div>
+ <div class="total-line"><span>TVA 9%</span><strong id="vat9">0,00 DA</strong></div>
+ <div class="total-line"><span>TVA 19%</span><strong id="vat19">0,00 DA</strong></div>
+ <div class="total-line"><span>Total TVA</span><strong id="totalVAT">0,00 DA</strong></div>
+ <div class="total-line"><span>Total TTC</span><strong id="totalTTC">0,00 DA</strong></div>
+ <div class="total-line"><span>Droit de timbre</span><strong id="stamp">0,00 DA</strong></div>
+ <div class="total-line big-total"><span>Net à payer</span><strong id="netTotal">0,00 DA</strong></div>
+</div>
+
+<hr>
+
+<div>
+ <strong>Arrêtée la présente facture à la somme de :</strong>
+ <p id="amountWords" style="font-weight:bold;color:#17365d">Zéro dinar algérien</p>
+</div>
+
+<div class="row">
+ <div>
+  <label>Mode de paiement</label>
+  <select id="paymentMode" onchange="calculate()">
+   <option value="Espèces">Espèces</option>
+   <option value="Virement">Virement</option>
+   <option value="Chèque">Chèque</option>
+   <option value="Autre">Autre</option>
+  </select>
+ </div>
+ <div>
+  <label>Observation</label>
+  <input id="invoiceNote" placeholder="Observation">
+ </div>
+</div>
+
+</div>
+
+<div class="card no-print">
+ <div class="actions">
+  <button class="btn green" onclick="saveInvoice()">Enregistrer facture</button>
+  <button class="btn" onclick="window.print()">Imprimer / PDF</button>
+  <button class="btn gray" onclick="newInvoice()">Nouvelle facture</button>
+ </div>
+ <p class="small">Les factures enregistrées restent disponibles dans l'historique.</p>
+</div>
+
+</section>
+
+<!-- CLIENTS -->
+<section id="clientsSection">
+<div class="card">
+<h2>Gestion des clients</h2>
+<label>Nom du client</label>
+<input id="newClientName">
+<label>Adresse</label>
+<input id="newClientAddress">
+<label>Activité</label>
+<input id="newClientActivity">
+<label>RC</label>
+<input id="newClientRC">
+<label>NIF</label>
+<input id="newClientNIF">
+<label>NIS</label>
+<input id="newClientNIS">
+<label>ART</label>
+<input id="newClientART">
+<button class="btn green" onclick="addClient()">Enregistrer client</button>
+</div>
+<div class="card">
+<h2>Liste des clients</h2>
+<div id="clientsList"></div>
+</div>
+</section>
+
+<!-- PRODUITS -->
+<section id="productsSection">
+<div class="card">
+<h2>Gestion des produits</h2>
+<label>Désignation</label>
+<input id="newProductName" placeholder="Ex: Semoule 25kg">
+<div class="row">
+ <div>
+  <label>Prix unitaire HT</label>
+  <input type="number" id="newProductPrice" min="0">
+ </div>
+ <div>
+  <label>TVA</label>
+  <select id="newProductVAT">
+   <option value="0">0%</option>
+   <option value="9">9%</option>
+   <option value="19">19%</option>
+  </select>
+ </div>
+</div>
+<button class="btn green" onclick="addProduct()">Enregistrer produit</button>
+</div>
+<div class="card">
+<h2>Liste des produits</h2>
+<div id="productsList"></div>
+</div>
+</section>
+
+<!-- HISTORIQUE -->
+<section id="historySection">
+<div class="card">
+<h2>Historique des factures</h2>
+<div id="historyList"></div>
+</div>
+</section>
+
+<!-- BACKUP -->
+<section id="backupSection">
+<div class="card">
+<h2>Sauvegarde des données</h2>
+<p>Exportez vos clients, produits et factures pour conserver une copie de sécurité.</p>
+<button class="btn green" onclick="exportBackup()">Exporter la sauvegarde</button>
+<label>Importer une sauvegarde JSON</label>
+<input type="file" id="backupFile" accept=".json">
+<button class="btn" onclick="importBackup()">Importer</button>
+</div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let clients = JSON.parse(localStorage.getItem("hmd_clients") || "[]");
+let products = JSON.parse(localStorage.getItem("hmd_products") || "[]");
+let invoices = JSON.parse(localStorage.getItem("hmd_invoices") || "[]");
+
+function persist(){
+ localStorage.setItem("hmd_clients",JSON.stringify(clients));
+ localStorage.setItem("hmd_products",JSON.stringify(products));
+ localStorage.setItem("hmd_invoices",JSON.stringify(invoices));
+}
+
+function money(n){
+ return (Number(n)||0).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" DA";
+}
+
+function showTab(id,btn){
+ document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
+ $(id).classList.add("active");
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+ if(id==="clientsSection")renderClients();
+ if(id==="productsSection")renderProducts();
+ if(id==="historySection")renderHistory();
+}
+
+function nextNumber(){
+ let max=0;
+ invoices.forEach(i=>{
+  let n=parseInt(String(i.number).replace(/\D/g,""))||0;
+  if(n>max)max=n;
+ });
+ return "HMD-"+String(max+1).padStart(4,"0");
+}
+
+function today(){
+ let d=new Date();
+ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+function newInvoice(){
+ $("invoiceNumber").value=nextNumber();
+ $("invoiceDate").value=today();
+ $("clientName").value="";
+ ["clientAddress","clientActivity","clientRC","clientNIF","clientNIS","clientART","invoiceNote"].forEach(id=>$(id).value="");
+ $("paymentMode").value="Espèces";
+ $("productLines").innerHTML="";
+ addLine();
+ calculate();
+}
+
+function addLine(name="",qty=1,price=0,vat=0){
+ let tr=document.createElement("tr");
+ tr.className="product-row";
+ tr.innerHTML=`
+ <td><input class="pname" list="productOptions" placeholder="Produit" value="${escapeHTML(name)}"></td>
+ <td><input class="qty" type="number" min="0" step="any" value="${qty}"></td>
+ <td><input class="price" type="number" min="0" step="any" value="${price}"></td>
+ <td><select class="vat">
+ <option value="0" ${vat==0?"selected":""}>0%</option>
+ <option value="9" ${vat==9?"selected":""}>9%</option>
+ <option value="19" ${vat==19?"selected":""}>19%</option>
+ </select></td>
+ <td class="lineTotal">0,00</td>
+ <td class="no-print"><button class="btn red" onclick="this.closest('tr').remove();calculate()">X</button></td>`;
+ tr.querySelectorAll("input,select").forEach(el=>{
+  el.addEventListener("input",calculate);
+  el.addEventListener("change",()=>{
+   if(el.classList.contains("pname"))suggestProduct(el);
+   calculate();
+  });
+ });
+ $("productLines").appendChild(tr);
+ calculate();
+}
+
+function escapeHTML(s){
+ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function suggestProduct(input){
+ let p=products.find(x=>x.name.toLowerCase()===input.value.toLowerCase());
+ if(!p)return;
+ let tr=input.closest("tr");
+ tr.querySelector(".price").value=p.price;
+ tr.querySelector(".vat").value=p.vat;
+ calculate();
+}
+
+function stampDuty(amount){
+ // Taux paramétrable : vérifier le barème fiscal applicable avant usage officiel.
+ if($("paymentMode").value!=="Espèces" || amount<=0)return 0;
+ return Math.ceil(amount*0.01);
+}
+
+function calculate(){
+ let ht=0,vat0=0,vat9=0,vat19=0;
+ document.querySelectorAll("#productLines tr").forEach(tr=>{
+  let q=Number(tr.querySelector(".qty").value)||0;
+  let p=Number(tr.querySelector(".price").value)||0;
+  let v=Number(tr.querySelector(".vat").value)||0;
+  let line=q*p;
+  ht+=line;
+  if(v===0)vat0+=0;
+  if(v===9)vat9+=line*.09;
+  if(v===19)vat19+=line*.19;
+  tr.querySelector(".lineTotal").textContent=money(line);
+ });
+ let totalVAT=vat0+vat9+vat19;
+ let ttc=ht+totalVAT;
+ let stamp=stampDuty(ttc);
+ $("totalHT").textContent=money(ht);
+ $("vat0").textContent=money(vat0);
+ $("vat9").textContent=money(vat9);
+ $("vat19").textContent=money(vat19);
+ $("totalVAT").textContent=money(totalVAT);
+ $("totalTTC").textContent=money(ttc);
+ $("stamp").textContent=money(stamp);
+ $("netTotal").textContent=money(ttc+stamp);
+ $("amountWords").textContent=numberWords(Math.round(ttc+stamp))+" dinars algériens";
+}
+
+function numberWords(n){
+ if(n===0)return "Zéro";
+ const units=["","un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix","onze","douze","treize","quatorze","quinze","seize"];
+ function under100(x){
+  if(x<17)return units[x];
+  if(x<20)return "dix-"+units[x-10];
+  if(x<70){
+   let t=Math.floor(x/10),r=x%10;
+   let tens=["","","vingt","trente","quarante","cinquante","soixante"];
+   return tens[t]+(r===0?"":r===1?" et un":"-"+units[r]);
+  }
+  if(x<80)return "soixante-"+under100(x-60);
+  return "quatre-vingt"+(x===80?"":"-"+under100(x-80));
+ }
+ function part(x){
+  if(x<100)return under100(x);
+  if(x<1000){
+   let h=Math.floor(x/100),r=x%100;
+   return (h===1?"cent":units[h]+" cent")+(r?" "+under100(r):h>1?"s":"");
+  }
+  return "";
+ }
+ if(n>=1000000)return "Montant élevé : "+n.toLocaleString("fr-FR");
+ let thousands=Math.floor(n/1000),rest=n%1000;
+ return (thousands?(thousands===1?"mille":part(thousands)+" mille"):"")+
+ (rest?(thousands?" ":"")+part(rest):"");
+}
+
+function readClient(){
+ return {
+  name:$("clientName").value.trim(),
+  address:$("clientAddress").value.trim(),
+  activity:$("clientActivity").value.trim(),
+  rc:$("clientRC").value.trim(),
+  nif:$("clientNIF").value.trim(),
+  nis:$("clientNIS").value.trim(),
+  art:$("clientART").value.trim()
+ };
+}
+
+function saveInvoice(){
+ let client=readClient();
+ if(!client.name){alert("Veuillez saisir le nom du client.");return;}
+ let lines=[];
+ document.querySelectorAll("#productLines tr").forEach(tr=>{
+  let name=tr.querySelector(".pname").value.trim();
+  let qty=Number(tr.querySelector(".qty").value)||0;
+  let price=Number(tr.querySelector(".price").value)||0;
+  let vat=Number(tr.querySelector(".vat").value)||0;
+  if(name && qty>0)lines.push({name,qty,price,vat});
+ });
+ if(!lines.length){alert("Ajoutez au moins un produit.");return;}
+ let ht=lines.reduce((s,l)=>s+l.qty*l.price,0);
+ let tax=lines.reduce((s,l)=>s+l.qty*l.price*l.vat/100,0);
+ let ttc=ht+tax;
+ let stamp=stampDuty(ttc);
+ let invoice={
+  number:$("invoiceNumber").value,
+  date:$("invoiceDate").value,
+  client,
+  lines,
+  payment:$("paymentMode").value,
+  note:$("invoiceNote").value,
+  ht,tax,ttc,stamp,total:ttc+stamp
+ };
+ let index=invoices.findIndex(x=>x.number===invoice.number);
+ if(index>=0){
+  if(!confirm("Cette facture existe déjà. Voulez-vous la remplacer ?"))return;
+  invoices[index]=invoice;
+ }else invoices.push(invoice);
+ clients=clients.filter(c=>c.name.toLowerCase()!==client.name.toLowerCase());
+ clients.push(client);
+ persist();
+ refreshOptions();
+ alert("Facture enregistrée avec succès.");
+}
+
+function addClient(){
+ let c={
+  name:$("newClientName").value.trim(),
+  address:$("newClientAddress").value.trim(),
+  activity:$("newClientActivity").value.trim(),
+  rc:$("newClientRC").value.trim(),
+  nif:$("newClientNIF").value.trim(),
+  nis:$("newClientNIS").value.trim(),
+  art:$("newClientART").value.trim()
+ };
+ if(!c.name){alert("Saisissez le nom du client.");return;}
+ clients=clients.filter(x=>x.name.toLowerCase()!==c.name.toLowerCase());
+ clients.push(c);persist();refreshOptions();renderClients();
+ alert("Client enregistré.");
+}
+
+function renderClients(){
+ $("clientsList").innerHTML=clients.length?clients.map((c,i)=>`
+ <div class="card">
+ <strong>${escapeHTML(c.name)}</strong><br>
+ <span class="small">${escapeHTML(c.address||"")} · ${escapeHTML(c.activity||"")}</span>
+ <div class="actions">
+ <button class="btn" onclick="useClient(${i})">Utiliser</button>
+ <button class="btn red" onclick="deleteClient(${i})">Supprimer</button>
+ </div></div>`).join(""):"Aucun client enregistré.";
+}
+
+function useClient(i){
+ let c=clients[i];
+ $("clientName").value=c.name;
+ $("clientAddress").value=c.address;
+ $("clientActivity").value=c.activity;
+ $("clientRC").value=c.rc;
+ $("clientNIF").value=c.nif;
+ $("clientNIS").value=c.nis;
+ $("clientART").value=c.art;
+ showTab("invoiceSection",document.querySelector("nav button"));
+}
+
+function deleteClient(i){
+ if(confirm("Supprimer ce client ?")){clients.splice(i,1);persist();renderClients();refreshOptions();}
+}
+
+function addProduct(){
+ let p={
+  name:$("newProductName").value.trim(),
+  price:Number($("newProductPrice").value)||0,
+  vat:Number($("newProductVAT").value)
+ };
+ if(!p.name){alert("Saisissez le nom du produit.");return;}
+ products=products.filter(x=>x.name.toLowerCase()!==p.name.toLowerCase());
+ products.push(p);persist();refreshOptions();renderProducts();
+ $("newProductName").value="";$("newProductPrice").value="";
+ alert("Produit enregistré.");
+}
+
+function renderProducts(){
+ $("productsList").innerHTML=products.length?products.map((p,i)=>`
+ <div class="total-line">
+ <span><strong>${escapeHTML(p.name)}</strong><br><small>${p.vat}% TVA</small></span>
+ <span>${money(p.price)}
+ <button class="btn red" onclick="deleteProduct(${i})">X</button></span>
+ </div>`).join(""):"Aucun produit enregistré.";
+}
+
+function deleteProduct(i){
+ if(confirm("Supprimer ce produit ?")){products.splice(i,1);persist();renderProducts();refreshOptions();}
+}
+
+function refreshOptions(){
+ $("clientOptions").innerHTML=clients.map(c=>`<option value="${escapeHTML(c.name)}">`).join("");
+ let old=$("productOptions");
+ if(!old){old=document.createElement("datalist");old.id="productOptions";document.body.appendChild(old);}
+ old.innerHTML=products.map(p=>`<option value="${escapeHTML(p.name)}">`).join("");
+}
+
+$("clientName").addEventListener("change",()=>{
+ let c=clients.find(x=>x.name.toLowerCase()===$("clientName").value.trim().toLowerCase());
+ if(!c)return;
+ $("clientAddress").value=c.address||"";
+ $("clientActivity").value=c.activity||"";
+ $("clientRC").value=c.rc||"";
+ $("clientNIF").value=c.nif||"";
+ $("clientNIS").value=c.nis||"";
+ $("clientART").value=c.art||"";
+});
+
+function renderHistory(){
+ $("historyList").innerHTML=invoices.length?invoices.slice().reverse().map((x)=>`
+ <div class="card">
+ <strong>${escapeHTML(x.number)}</strong> — ${escapeHTML(x.date)}<br>
+ Client : ${escapeHTML(x.client.name)}<br>
+ Total : <strong>${money(x.total)}</strong>
+ <div class="actions">
+ <button class="btn" onclick="loadInvoice('${x.number}')">Afficher</button>
+ <button class="btn red" onclick="deleteInvoice('${x.number}')">Supprimer</button>
+ </div></div>`).join(""):"Aucune facture enregistrée.";
+}
+
+function loadInvoice(number){
+ let x=invoices.find(i=>i.number===number);
+ if(!x)return;
+ $("invoiceNumber").value=x.number;
+ $("invoiceDate").value=x.date;
+ $("clientName").value=x.client.name;
+ $("clientAddress").value=x.client.address;
+ $("clientActivity").value=x.client.activity;
+ $("clientRC").value=x.client.rc;
+ $("clientNIF").value=x.client.nif;
+ $("clientNIS").value=x.client.nis;
+ $("clientART").value=x.client.art;
+ $("paymentMode").value=x.payment;
+ $("invoiceNote").value=x.note||"";
+ $("productLines").innerHTML="";
+ x.lines.forEach(l=>addLine(l.name,l.qty,l.price,l.vat));
+ calculate();
+ showTab("invoiceSection",document.querySelector("nav button"));
+}
+
+function deleteInvoice(number){
+ if(confirm("Supprimer cette facture ?")){
+  invoices=invoices.filter(x=>x.number!==n
